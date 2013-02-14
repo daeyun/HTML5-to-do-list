@@ -52,11 +52,11 @@ a {
     background-color: #67a839;
 }
 
-#heading a.clean {
+#heading a.clean, #heading a.sort {
     background-color: #b0b0b0;
 }
 
-#heading a.clean:hover {
+#heading a.clean:hover, #heading a.sort:hover {
     background-color: #999999;
 }
 

@@ -14,7 +14,7 @@
       }
 
       Item.prototype.defaults = {
-        content: '',
+        content: 'todo',
         date: moment().format('L'),
         editMode: true,
         dateEditMode: true,
@@ -36,7 +36,7 @@
       TodoList.prototype.model = Item;
 
       TodoList.prototype.comparator = function(item) {
-        return -moment(item.get('date')).unix();
+        return moment(item.get('date')).unix();
       };
 
       return TodoList;
@@ -83,7 +83,7 @@
       };
 
       ItemView.prototype.unrender = function() {
-        return $(this.el).fadeOut(800, function() {
+        return $(this.el).fadeOut(600, function() {
           return $(this.el).remove();
         });
       };
@@ -180,7 +180,6 @@
       ListView.prototype.cleanItems = function() {
         var lastitem, model, _results;
         lastitem = this.collection.length;
-        console.log(lastitem);
         _results = [];
         while (lastitem > 0) {
           model = this.collection.models[lastitem - 1];
@@ -195,16 +194,16 @@
       };
 
       ListView.prototype.sortItems = function() {
-        var item, _i, _len, _ref, _results;
+        var item, _i, _len, _ref;
         this.collection.sort();
+        $("#list>ul").hide();
         $("#list>ul").html("");
         _ref = this.collection.models;
-        _results = [];
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           item = _ref[_i];
-          _results.push(this.renderItem(item));
+          this.renderItem(item);
         }
-        return _results;
+        return $("#list>ul").fadeIn(300);
       };
 
       ListView.prototype.renderItem = function(item) {
@@ -213,7 +212,6 @@
           model: item
         });
         html = item_view.el;
-        console.log(html);
         $("#list>ul").append(html);
         return item_view.render();
       };

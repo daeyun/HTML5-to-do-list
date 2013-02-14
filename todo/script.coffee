@@ -3,7 +3,7 @@ jQuery ->
 
     class Item extends Backbone.Model
         defaults:
-            content: ''
+            content: 'todo'
             date: moment().format('L')
             editMode: true
             dateEditMode: true
@@ -13,7 +13,7 @@ jQuery ->
     class TodoList extends Backbone.Collection
         model: Item
         comparator: (item) ->
-            -moment(item.get('date')).unix()
+            moment(item.get('date')).unix()
 
     class ItemView extends Backbone.View
         tagName: 'li'
@@ -86,7 +86,7 @@ jQuery ->
             @
 
         unrender: ->
-            $(@el).fadeOut 800, ->
+            $(@el).fadeOut 600, ->
                 $(@el).remove()
 
         remove: ->
@@ -141,7 +141,6 @@ jQuery ->
 
         cleanItems: ->
             lastitem=@collection.length
-            console.log lastitem
             while lastitem > 0
                 model = @collection.models[lastitem-1]
                 lastitem -= 1
@@ -151,14 +150,18 @@ jQuery ->
         sortItems: ->
             @collection.sort()
 
+            $("#list>ul").hide()
+
             $("#list>ul").html ""
             for item in @collection.models
                 @renderItem item
 
+            $("#list>ul").fadeIn(300)
+
+
         renderItem: (item) ->
             item_view = new ItemView model: item
             html = item_view.el
-            console.log html
             $("#list>ul").append html
             item_view.render()
 
