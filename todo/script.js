@@ -14,7 +14,7 @@
       }
 
       Item.prototype.defaults = {
-        content: 'Default Item',
+        content: '',
         date: moment().format('L'),
         editMode: true,
         dateEditMode: true,
@@ -34,6 +34,10 @@
       }
 
       TodoList.prototype.model = Item;
+
+      TodoList.prototype.comparator = function(item) {
+        return -moment(item.get('date')).unix();
+      };
 
       return TodoList;
 
@@ -79,7 +83,7 @@
       };
 
       ItemView.prototype.unrender = function() {
-        return $(this.el).slideUp(800, function() {
+        return $(this.el).fadeOut(800, function() {
           return $(this.el).remove();
         });
       };
@@ -190,6 +194,19 @@
         return _results;
       };
 
+      ListView.prototype.sortItems = function() {
+        var item, _i, _len, _ref, _results;
+        this.collection.sort();
+        $("#list>ul").html("");
+        _ref = this.collection.models;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          item = _ref[_i];
+          _results.push(this.renderItem(item));
+        }
+        return _results;
+      };
+
       ListView.prototype.renderItem = function(item) {
         var html, item_view;
         item_view = new ItemView({
@@ -204,7 +221,8 @@
       ListView.prototype.events = function() {
         return {
           'click .add': 'addItem',
-          'click .clean': 'cleanItems'
+          'click .clean': 'cleanItems',
+          'click .sort': 'sortItems'
         };
       };
 
