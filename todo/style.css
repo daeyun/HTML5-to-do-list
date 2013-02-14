@@ -9,6 +9,13 @@
     height:40px;
 }
 
+#heading h1 span{
+    color:#bbb;
+    font-weight:normal;
+    font-size:80%;
+    margin-left:7px;
+}
+
 a {
     text-decoration: none;
 }
@@ -30,9 +37,10 @@ a {
 #heading h1 {
     font-family: 'DejaVu Sans', Arial, sans-serif;
     float:left;
-    font-size:110%;
+    font-size:140%;
     color:#232323;
     padding-top:15px;
+    font-weight:normal;
 }
 
 
@@ -56,10 +64,11 @@ ul {
     margin-left:25px;
 }
 
-li:before {
+li {
     line-height:1.5;
-    content: "• ";
-    color: red;
+    padding-left: 5px; 
+    text-indent: -5px;
+    color:#111;
 }
 
 h2 {
@@ -68,4 +77,16 @@ h2 {
 
 #list {
     margin-top:15px;
+}
+
+li:before {
+    content: "- ";
+    color: red; /* or whatever color you prefer */
+    font-size:80%;
+    position:relative;
+    top:-1px;
+}
+
+li.done {
+    color: #aaa;
 }
