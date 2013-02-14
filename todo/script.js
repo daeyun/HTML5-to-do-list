@@ -15,8 +15,9 @@
 
       Item.prototype.defaults = {
         content: 'Default Item',
-        date: '2012-1-1',
+        date: moment().format('L'),
         editMode: true,
+        dateEditMode: true,
         done: false
       };
 
@@ -53,17 +54,16 @@
       };
 
       ItemView.prototype.render = function() {
-        var html, inputBox, text;
-        inputBox = "<input type=\"text\" name=\"fname\" value=\"" + (this.model.get('content')) + "\">";
-        text = "<span class=\"itemcontent\">" + (this.model.get('content')) + "</span>\n<a href=\"#\" class=\"done\">done</a> ";
-        html = this.model.get('editMode') ? inputBox : text;
+        var content_edit_html, date_edit_html, final_html, html;
+        content_edit_html = "<input type=\"text\" class=\"content_input\" value=\"" + (this.model.get('content')) + "\">\n<span class=\"date\">" + (this.model.get('date')) + "</span>";
+        date_edit_html = "<span class=\"content\">" + (this.model.get('content')) + "</span>\n<input type=\"text\" class=\"date_input\" value=\"" + (this.model.get('date')) + "\">";
+        final_html = "<span class=\"content\">" + (this.model.get('content')) + "</span>\n<span class=\"date\">" + (this.model.get('date')) + "</span>\n<a href=\"#\" class=\"done\">done</a> ";
+        html = this.model.get('editMode') ? content_edit_html : this.model.get('dateEditMode') ? date_edit_html : final_html;
         $(this.el).html(html);
         if (this.model.get('done')) {
           $(this.el).addClass("done");
         }
-        if (this.model.get('editMode')) {
-          $(this.el).find("input").focus();
-        }
+        $(this.el).find("input").focus();
         return this;
       };
 
@@ -76,23 +76,23 @@
       };
 
       ItemView.prototype.enableEdit = function(e) {
-        return this.model.set({
-          'editMode': true
-        });
+        if ($(e.target).hasClass('content')) {
+          return this.model.set({
+            'editMode': true
+          });
+        } else if ($(e.target).hasClass('date')) {
+          return this.model.set({
+            'dateEditMode': true
+          });
+        }
       };
 
       ItemView.prototype.keyPress = function(e) {
-        var val;
-        if (e.keyCode !== 13) {
+        if (e.keyCode !== 13 && e.keyCode !== 9) {
           return;
         }
-        val = $(e.target).val();
-        if (val !== '') {
-          return this.model.set({
-            'content': val,
-            'editMode': false
-          });
-        }
+        e.preventDefault();
+        return this.saveEdit(e);
       };
 
       ItemView.prototype.markDone = function(e) {
@@ -102,23 +102,36 @@
       };
 
       ItemView.prototype.blur = function(e) {
+        return this.saveEdit(e);
+      };
+
+      ItemView.prototype.saveEdit = function(e) {
         var val;
         val = $(e.target).val();
         if (val !== '') {
-          return this.model.set({
-            'content': val,
-            'editMode': false
-          });
+          if ($(e.target).hasClass('content_input')) {
+            return this.model.set({
+              'content': val,
+              'editMode': false
+            });
+          } else if ($(e.target).hasClass('date_input')) {
+            if (moment(val).isValid()) {
+              return this.model.set({
+                'date': moment(val).format('L'),
+                'dateEditMode': false
+              });
+            }
+          }
         }
       };
 
       ItemView.prototype.events = function() {
         return {
-          'click .edit': 'enableEdit',
           'click a.done': 'markDone',
           'keypress input[type=text]': 'keyPress',
           'blur input[type=text]': 'blur',
-          'dblclick ': 'enableEdit'
+          'dblclick .content': 'enableEdit',
+          'dblclick .date': 'enableEdit'
         };
       };
 
@@ -152,9 +165,10 @@
         item_view = new ItemView({
           model: item
         });
-        html = item_view.render().el;
+        html = item_view.el;
         console.log(html);
-        return $("#list>ul").append(html);
+        $("#list>ul").append(html);
+        return item_view.render();
       };
 
       ListView.prototype.events = function() {

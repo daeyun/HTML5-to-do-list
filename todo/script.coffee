@@ -4,8 +4,9 @@ jQuery ->
     class Item extends Backbone.Model
         defaults:
             content: 'Default Item'
-            date: '2012-1-1'
+            date: moment().format('L')
             editMode: true
+            dateEditMode: true
             done: false
 
     class TodoList extends Backbone.Collection
@@ -21,18 +22,32 @@ jQuery ->
             @model.bind 'remove', @unrender
 
         render: ->
-            inputBox = """<input type="text" name="fname" value="#{@model.get 'content'}">"""
-            text = """<span class="itemcontent">#{@model.get 'content'}</span>
+            content_edit_html = """
+                <input type="text" class="content_input" value="#{@model.get 'content'}">
+                <span class="date">#{@model.get 'date'}</span>
+                """
+
+            date_edit_html = """
+                <span class="content">#{@model.get 'content'}</span>
+                <input type="text" class="date_input" value="#{@model.get 'date'}">
+                """
+
+            final_html = """
+                <span class="content">#{@model.get 'content'}</span>
+                <span class="date">#{@model.get 'date'}</span>
                 <a href="#" class="done">done</a> """
-            html = if @model.get 'editMode' then inputBox else text
+
+            html =
+                if @model.get 'editMode' then content_edit_html
+                else if @model.get 'dateEditMode' then date_edit_html
+                else final_html
 
             $(@el).html html
 
             if @model.get 'done'
                 $(@el).addClass("done")
 
-            if @model.get 'editMode'
-                $(@el).find("input").focus()
+            $(@el).find("input").focus()
             @
 
         unrender: ->
@@ -42,30 +57,37 @@ jQuery ->
             @model.destroy()
 
         enableEdit: (e) ->
-            @model.set 'editMode': true
+            if $(e.target).hasClass('content')
+                @model.set 'editMode': true
+            else if $(e.target).hasClass('date')
+                @model.set 'dateEditMode': true
 
         keyPress: (e) ->
-            return if e.keyCode isnt 13
-            val=$(e.target).val()
-            if val != ''
-                @model.set 'content': val, 'editMode': false
+            e.preventDefault()
+            return if e.keyCode isnt 13 and e.keyCode isnt 9
+            @saveEdit(e)
 
         markDone: (e) ->
             @model.set 'done': true
 
 
         blur: (e) ->
+            @saveEdit(e)
+        saveEdit: (e) ->
             val=$(e.target).val()
             if val != ''
-                @model.set 'content': val, 'editMode': false
+                if $(e.target).hasClass('content_input')
+                    @model.set 'content': val, 'editMode': false
+                else if $(e.target).hasClass('date_input')
+                    if moment(val).isValid()
+                        @model.set 'date': moment(val).format('L'), 'dateEditMode': false
 
         events: ->
-            'click .edit': 'enableEdit'
             'click a.done': 'markDone'
             'keypress input[type=text]': 'keyPress'
             'blur input[type=text]': 'blur'
-            'dblclick ': 'enableEdit'
-
+            'dblclick .content': 'enableEdit'
+            'dblclick .date': 'enableEdit'
 
 
     class ListView extends Backbone.View
@@ -82,9 +104,10 @@ jQuery ->
 
         renderItem: (item) ->
             item_view = new ItemView model: item
-            html = item_view.render().el
+            html = item_view.el
             console.log html
             $("#list>ul").append html
+            item_view.render()
 
         events: ->
             'click .add': 'addItem'
