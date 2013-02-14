@@ -102,6 +102,15 @@ jQuery ->
             item = new Item
             @collection.add item
 
+        cleanItems: ->
+            lastitem=@collection.length
+            console.log lastitem
+            while lastitem > 0
+                model = @collection.models[lastitem-1]
+                lastitem -= 1
+                if model.get 'done'
+                    model.destroy()
+
         renderItem: (item) ->
             item_view = new ItemView model: item
             html = item_view.el
@@ -111,5 +120,6 @@ jQuery ->
 
         events: ->
             'click .add': 'addItem'
+            'click .clean': 'cleanItems'
 
     list_view = new ListView

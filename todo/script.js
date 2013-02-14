@@ -88,10 +88,10 @@
       };
 
       ItemView.prototype.keyPress = function(e) {
+        e.preventDefault();
         if (e.keyCode !== 13 && e.keyCode !== 9) {
           return;
         }
-        e.preventDefault();
         return this.saveEdit(e);
       };
 
@@ -160,6 +160,23 @@
         return this.collection.add(item);
       };
 
+      ListView.prototype.cleanItems = function() {
+        var lastitem, model, _results;
+        lastitem = this.collection.length;
+        console.log(lastitem);
+        _results = [];
+        while (lastitem > 0) {
+          model = this.collection.models[lastitem - 1];
+          lastitem -= 1;
+          if (model.get('done')) {
+            _results.push(model.destroy());
+          } else {
+            _results.push(void 0);
+          }
+        }
+        return _results;
+      };
+
       ListView.prototype.renderItem = function(item) {
         var html, item_view;
         item_view = new ItemView({
@@ -173,7 +190,8 @@
 
       ListView.prototype.events = function() {
         return {
-          'click .add': 'addItem'
+          'click .add': 'addItem',
+          'click .clean': 'cleanItems'
         };
       };
 
