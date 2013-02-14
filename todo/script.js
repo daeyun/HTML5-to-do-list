@@ -18,7 +18,8 @@
         date: moment().format('L'),
         editMode: true,
         dateEditMode: true,
-        done: false
+        done: false,
+        initialized: false
       };
 
       return Item;
@@ -54,12 +55,22 @@
       };
 
       ItemView.prototype.render = function() {
-        var content_edit_html, date_edit_html, final_html, html;
-        content_edit_html = "<input type=\"text\" class=\"content_input\" value=\"" + (this.model.get('content')) + "\">\n<span class=\"date\">" + (this.model.get('date')) + "</span>";
-        date_edit_html = "<span class=\"content\">" + (this.model.get('content')) + "</span>\n<input type=\"text\" class=\"date_input\" value=\"" + (this.model.get('date')) + "\">";
-        final_html = "<span class=\"content\">" + (this.model.get('content')) + "</span>\n<span class=\"date\">" + (this.model.get('date')) + "</span>\n<a href=\"#\" class=\"done\">done</a> ";
+        var content_edit_html, date_edit_html, done_html, final_html, html;
+        content_edit_html = "<div class=\"item_container editing\">\n<div class=\"todo\">\n    <input type=\"text\" class=\"content_input\" value=\"" + (this.model.get('content')) + "\">\n</div>\n<div class=\"control\">\n    <span class=\"date\">" + (this.model.get('date')) + "</span>\n    <a href=\"#\" class=\"remove\">remove</a>\n</div>\n</div>";
+        date_edit_html = "<div class=\"item_container editing\">\n<div class=\"todo\">\n    <span class=\"content\">" + (this.model.get('content')) + "</span>\n</div>\n<div class=\"control\">\n    <input type=\"text\" class=\"date_input\" value=\"" + (this.model.get('date')) + "\">\n    <a href=\"#\" class=\"remove\">remove</a>\n</div>\n</div>";
+        done_html = !this.model.get('done') ? '<a href="#" class="done">done</a>' : "";
+        final_html = "<div class=\"item_container\">\n<div class=\"todo\">\n    <span class=\"content\">" + (this.model.get('content')) + "</span>\n</div>\n<div class=\"control\">\n    <span class=\"date\">" + (this.model.get('date')) + "</span>\n    " + done_html + "\n    <a href=\"#\" class=\"remove\">remove</a>\n</div>\n</div>";
         html = this.model.get('editMode') ? content_edit_html : this.model.get('dateEditMode') ? date_edit_html : final_html;
+        if (!this.model.get('initialized')) {
+          $(this.el).hide();
+        }
         $(this.el).html(html);
+        if (!this.model.get('initialized')) {
+          $(this.el).slideDown(600);
+        }
+        this.model.set({
+          'initialized': true
+        });
         if (this.model.get('done')) {
           $(this.el).addClass("done");
         }
@@ -68,7 +79,9 @@
       };
 
       ItemView.prototype.unrender = function() {
-        return $(this.el).remove();
+        return $(this.el).slideUp(800, function() {
+          return $(this.el).remove();
+        });
       };
 
       ItemView.prototype.remove = function() {
@@ -88,8 +101,7 @@
       };
 
       ItemView.prototype.keyPress = function(e) {
-        e.preventDefault();
-        if (e.keyCode !== 13 && e.keyCode !== 9) {
+        if (e.keyCode !== 13) {
           return;
         }
         return this.saveEdit(e);
@@ -128,9 +140,10 @@
       ItemView.prototype.events = function() {
         return {
           'click a.done': 'markDone',
+          'click a.remove': 'remove',
           'keypress input[type=text]': 'keyPress',
           'blur input[type=text]': 'blur',
-          'dblclick .content': 'enableEdit',
+          'dblclick .todo': 'enableEdit',
           'dblclick .date': 'enableEdit'
         };
       };

@@ -1,7 +1,7 @@
 #container {
     width: 800px;
     margin:0 auto;
-    font: bold 11px/1 "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
+    font: bold 13px/1 "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
 }
 
 #heading {
@@ -60,33 +60,53 @@ a {
     background-color: #999999;
 }
 
-ul {
-    margin-left:25px;
-}
-
 li {
-    line-height:1.5;
-    padding-left: 5px; 
-    text-indent: -5px;
-    color:#111;
 }
-
-h2 {
-    line-height:1.5;
-}
-
 #list {
     margin-top:15px;
 }
-
-li:before {
-    content: "- ";
-    color: red; /* or whatever color you prefer */
-    font-size:80%;
-    position:relative;
-    top:-1px;
+li.done .item_container {
+    background-color:#f0f0f0 !important;
 }
-
-li.done {
-    color: #aaa;
+li.done span {
+    color: #aaa !important;
+}
+.todo {
+    width:100%;
+    font-weight:normal;
+    line-height:1.3;
+}
+.control {
+    width:100%;
+    line-height:1.3;
+}
+.item_container {
+    margin-top:3px;
+    margin-bottom:3px;
+    padding:7px;
+    border-radius:3px;
+    background-color:#BABE92;
+    color:#111;
+    overflow: hidden;
+}
+.editing {
+    background-color:#FFEEB7 !important;
+}
+.content_input{
+    width:100%;
+}
+.date_input{
+    width:80px;
+}
+input {
+    border: 0;
+    padding:0;
+    margin:0;
+    background:transparent;
+    outline: none;
+    font: 13px/1 "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
+}
+.date {
+    font-weight:normal;
+    color: #777;
 }

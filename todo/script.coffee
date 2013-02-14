@@ -8,6 +8,7 @@ jQuery ->
             editMode: true
             dateEditMode: true
             done: false
+            initialized: false
 
     class TodoList extends Backbone.Collection
         model: Item
@@ -23,26 +24,58 @@ jQuery ->
 
         render: ->
             content_edit_html = """
-                <input type="text" class="content_input" value="#{@model.get 'content'}">
-                <span class="date">#{@model.get 'date'}</span>
+                <div class="item_container editing">
+                <div class="todo">
+                    <input type="text" class="content_input" value="#{@model.get 'content'}">
+                </div>
+                <div class="control">
+                    <span class="date">#{@model.get 'date'}</span>
+                    <a href="#" class="remove">remove</a>
+                </div>
+                </div>
                 """
 
             date_edit_html = """
-                <span class="content">#{@model.get 'content'}</span>
-                <input type="text" class="date_input" value="#{@model.get 'date'}">
+                <div class="item_container editing">
+                <div class="todo">
+                    <span class="content">#{@model.get 'content'}</span>
+                </div>
+                <div class="control">
+                    <input type="text" class="date_input" value="#{@model.get 'date'}">
+                    <a href="#" class="remove">remove</a>
+                </div>
+                </div>
                 """
 
+            done_html = if not @model.get 'done' then '<a href="#" class="done">done</a>' else ""
+
             final_html = """
-                <span class="content">#{@model.get 'content'}</span>
-                <span class="date">#{@model.get 'date'}</span>
-                <a href="#" class="done">done</a> """
+                <div class="item_container">
+                <div class="todo">
+                    <span class="content">#{@model.get 'content'}</span>
+                </div>
+                <div class="control">
+                    <span class="date">#{@model.get 'date'}</span>
+                    #{done_html}
+                    <a href="#" class="remove">remove</a>
+                </div>
+                </div>
+                """
 
             html =
                 if @model.get 'editMode' then content_edit_html
                 else if @model.get 'dateEditMode' then date_edit_html
                 else final_html
 
+            if not @model.get 'initialized'
+                $(@el).hide()
+
             $(@el).html html
+
+            if not @model.get 'initialized'
+                $(@el).slideDown(600)
+
+            @model.set 'initialized':true
 
             if @model.get 'done'
                 $(@el).addClass("done")
@@ -51,7 +84,8 @@ jQuery ->
             @
 
         unrender: ->
-            $(@el).remove()
+            $(@el).slideUp 800, ->
+                $(@el).remove()
 
         remove: ->
             @model.destroy()
@@ -63,8 +97,7 @@ jQuery ->
                 @model.set 'dateEditMode': true
 
         keyPress: (e) ->
-            e.preventDefault()
-            return if e.keyCode isnt 13 and e.keyCode isnt 9
+            return if e.keyCode isnt 13
             @saveEdit(e)
 
         markDone: (e) ->
@@ -84,9 +117,10 @@ jQuery ->
 
         events: ->
             'click a.done': 'markDone'
+            'click a.remove': 'remove'
             'keypress input[type=text]': 'keyPress'
             'blur input[type=text]': 'blur'
-            'dblclick .content': 'enableEdit'
+            'dblclick .todo': 'enableEdit'
             'dblclick .date': 'enableEdit'
 
 
