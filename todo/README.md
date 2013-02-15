@@ -12,7 +12,7 @@ Sorting, Animations
 
 ## Extra
 
-Doubleclick to edit item content and dates
+Doubleclick to edit item content and dates. The editing feature took a lot of effort!
 
 ## Sources
 
