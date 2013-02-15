@@ -229,6 +229,7 @@ jQuery ->
             $("#list>ul").html("")
 
             $("#heading>h1").html(option)
+            $("#bottom.hidden").removeClass("hidden")
 
             @collection = new TodoList 'localStorage'
                 'localStorage': new Backbone.LocalStorage(option)

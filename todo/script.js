@@ -314,6 +314,7 @@
         option = $("select#lists").val();
         $("#list>ul").html("");
         $("#heading>h1").html(option);
+        $("#bottom.hidden").removeClass("hidden");
         this.collection = new TodoList('localStorage', {
           'localStorage': new Backbone.LocalStorage(option)
         });
