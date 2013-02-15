@@ -12,7 +12,7 @@ Sorting, Animations
 
 ## Extra
 
-Doubleclick to edit todo content and dates
+Doubleclick to edit item content and dates
 
 ## Sources
 
