@@ -10,12 +10,23 @@ jQuery ->
             done: false
             initialized: false
 
+    class List extends Backbone.Model
+        defaults:
+            name: 'DefaultList'
+
     class TodoList extends Backbone.Collection
         model: Item
-        localStorage:
-            new Backbone.LocalStorage("SomeCollection2")
         comparator: (item) ->
             moment(item.get('date')).unix()
+        initialize: (models, options) ->
+            options || (options = {})
+            if options.localStorage
+                @localStorage = options.localStorage
+
+    class ListCollection extends Backbone.Collection
+        model: List
+        localStorage:
+            new Backbone.LocalStorage("TodoList")
 
     class ItemView extends Backbone.View
         tagName: 'li'
@@ -140,11 +151,45 @@ jQuery ->
         initialize: ->
             _.bindAll @
 
-            @collection = new TodoList
-            @collection.bind 'add', @renderItem
-            @collection.bind 'reset', @reset
-            @collection.fetch()
-            console.log(Backbone.LocalStorage)
+            @lists = new ListCollection
+            @lists.bind 'add', @renderList
+            @lists.bind 'reset', @resetList
+            @lists.fetch()
+
+        renderList: (list) ->
+            console.log "this is renderList"
+            $("select#lists").append """
+                <option value="#{list.get 'name'}">#{list.get 'name'}</option>
+            """
+
+        addList: ->
+            val=$("input.list_name").val()
+            return if val == ''
+
+            # avoid duplicate list names
+            duplicate_count=1
+            while true
+                duplicate=false
+                lastitem=@lists.length
+                while lastitem > 0
+                    model = @lists.models[lastitem-1]
+                    lastitem -= 1
+                    name=model.get 'name'
+                    if name == val
+                        duplicate=true
+                        duplicate_count+=1
+                        val = $("input.list_name").val() + duplicate_count
+                        break
+                if not duplicate
+                    break
+
+
+            list = new List 'name':val
+            @lists.add list
+            list.save()
+
+        resetList: ->
+            @lists.each(this.renderList)
 
         addItem: ->
             item = new Item
@@ -159,6 +204,7 @@ jQuery ->
                     model.destroy()
 
         reset: ->
+            $("#list>ul").html ""
             @collection.each(this.renderItem)
 
         sortItems: ->
@@ -172,16 +218,29 @@ jQuery ->
 
             $("#list>ul").fadeIn(300)
 
-
         renderItem: (item) ->
             item_view = new ItemView model: item
             html = item_view.el
             $("#list>ul").append html
             item_view.render()
 
+        selectList: ->
+            option = $("select#lists").val()
+            $("#list>ul").html("")
+
+            $("#heading>h1").html(option)
+
+            @collection = new TodoList 'localStorage'
+                'localStorage': new Backbone.LocalStorage(option)
+            @collection.bind 'add', @renderItem
+            @collection.bind 'reset', @reset
+            @collection.fetch()
+
         events: ->
             'click .add': 'addItem'
             'click .clean': 'cleanItems'
             'click .sort': 'sortItems'
+            'click .add_list_btn': 'addList'
+            'change #lists': 'selectList'
 
     list_view = new ListView

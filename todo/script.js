@@ -4,7 +4,7 @@
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   jQuery(function() {
-    var Item, ItemView, ListView, TodoList, list_view;
+    var Item, ItemView, List, ListCollection, ListView, TodoList, list_view;
     Item = (function(_super) {
 
       __extends(Item, _super);
@@ -25,6 +25,21 @@
       return Item;
 
     })(Backbone.Model);
+    List = (function(_super) {
+
+      __extends(List, _super);
+
+      function List() {
+        return List.__super__.constructor.apply(this, arguments);
+      }
+
+      List.prototype.defaults = {
+        name: 'DefaultList'
+      };
+
+      return List;
+
+    })(Backbone.Model);
     TodoList = (function(_super) {
 
       __extends(TodoList, _super);
@@ -35,13 +50,33 @@
 
       TodoList.prototype.model = Item;
 
-      TodoList.prototype.localStorage = new Backbone.LocalStorage("SomeCollection2");
-
       TodoList.prototype.comparator = function(item) {
         return moment(item.get('date')).unix();
       };
 
+      TodoList.prototype.initialize = function(models, options) {
+        options || (options = {});
+        if (options.localStorage) {
+          return this.localStorage = options.localStorage;
+        }
+      };
+
       return TodoList;
+
+    })(Backbone.Collection);
+    ListCollection = (function(_super) {
+
+      __extends(ListCollection, _super);
+
+      function ListCollection() {
+        return ListCollection.__super__.constructor.apply(this, arguments);
+      }
+
+      ListCollection.prototype.model = List;
+
+      ListCollection.prototype.localStorage = new Backbone.LocalStorage("TodoList");
+
+      return ListCollection;
 
     })(Backbone.Collection);
     ItemView = (function(_super) {
@@ -177,11 +212,51 @@
 
       ListView.prototype.initialize = function() {
         _.bindAll(this);
-        this.collection = new TodoList;
-        this.collection.bind('add', this.renderItem);
-        this.collection.bind('reset', this.reset);
-        this.collection.fetch();
-        return console.log(Backbone.LocalStorage);
+        this.lists = new ListCollection;
+        this.lists.bind('add', this.renderList);
+        this.lists.bind('reset', this.resetList);
+        return this.lists.fetch();
+      };
+
+      ListView.prototype.renderList = function(list) {
+        console.log("this is renderList");
+        return $("select#lists").append("<option value=\"" + (list.get('name')) + "\">" + (list.get('name')) + "</option>");
+      };
+
+      ListView.prototype.addList = function() {
+        var duplicate, duplicate_count, lastitem, list, model, name, val;
+        val = $("input.list_name").val();
+        if (val === '') {
+          return;
+        }
+        duplicate_count = 1;
+        while (true) {
+          duplicate = false;
+          lastitem = this.lists.length;
+          while (lastitem > 0) {
+            model = this.lists.models[lastitem - 1];
+            lastitem -= 1;
+            name = model.get('name');
+            if (name === val) {
+              duplicate = true;
+              duplicate_count += 1;
+              val = $("input.list_name").val() + duplicate_count;
+              break;
+            }
+          }
+          if (!duplicate) {
+            break;
+          }
+        }
+        list = new List({
+          'name': val
+        });
+        this.lists.add(list);
+        return list.save();
+      };
+
+      ListView.prototype.resetList = function() {
+        return this.lists.each(this.renderList);
       };
 
       ListView.prototype.addItem = function() {
@@ -207,6 +282,7 @@
       };
 
       ListView.prototype.reset = function() {
+        $("#list>ul").html("");
         return this.collection.each(this.renderItem);
       };
 
@@ -233,11 +309,26 @@
         return item_view.render();
       };
 
+      ListView.prototype.selectList = function() {
+        var option;
+        option = $("select#lists").val();
+        $("#list>ul").html("");
+        $("#heading>h1").html(option);
+        this.collection = new TodoList('localStorage', {
+          'localStorage': new Backbone.LocalStorage(option)
+        });
+        this.collection.bind('add', this.renderItem);
+        this.collection.bind('reset', this.reset);
+        return this.collection.fetch();
+      };
+
       ListView.prototype.events = function() {
         return {
           'click .add': 'addItem',
           'click .clean': 'cleanItems',
-          'click .sort': 'sortItems'
+          'click .sort': 'sortItems',
+          'click .add_list_btn': 'addList',
+          'change #lists': 'selectList'
         };
       };
 

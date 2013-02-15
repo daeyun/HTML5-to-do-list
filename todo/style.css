@@ -2,6 +2,9 @@
     width: 800px;
     margin:0 auto;
     font: bold 13px/1 "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
+    border-radius:3px;
+    padding:15px;
+    border:1px solid #ccc;
 }
 
 #heading {
@@ -26,11 +29,10 @@ a {
     font: bold 11px/1 "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
     padding: 7px 0 8px 0;
     text-align: center;
-    width: 100px;
+    width: 130px;
     -moz-border-radius: 3px;
     border-radius: 3px;
     border:0px;
-
     margin:5px;
 }
 
@@ -43,20 +45,19 @@ a {
     font-weight:normal;
 }
 
-
-#heading a.add {
+#heading a.green {
     background-color: #7fbf4d;
 }
 
-#heading a.add:hover {
+#heading a.green:hover {
     background-color: #67a839;
 }
 
-#heading a.clean, #heading a.sort {
+#heading a.grey{
     background-color: #b0b0b0;
 }
 
-#heading a.clean:hover, #heading a.sort:hover {
+#heading a.grey:hover{
     background-color: #999999;
 }
 
@@ -98,6 +99,7 @@ li.done span {
 .date_input{
     width:80px;
 }
+
 input {
     border: 0;
     padding:0;
@@ -106,7 +108,16 @@ input {
     outline: none;
     font: 13px/1 "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
 }
+
+input.list_name {
+    border: 1px solid #454545;
+}
+
 .date {
     font-weight:normal;
     color: #777;
+}
+
+.hidden {
+    display:none;
 }
