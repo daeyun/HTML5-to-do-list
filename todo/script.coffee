@@ -6,12 +6,14 @@ jQuery ->
             content: 'todo'
             date: moment().format('L')
             editMode: true
-            dateEditMode: true
+            dateEditMode: false
             done: false
             initialized: false
 
     class TodoList extends Backbone.Collection
         model: Item
+        localStorage:
+            new Backbone.LocalStorage("SomeCollection2")
         comparator: (item) ->
             moment(item.get('date')).unix()
 
@@ -64,10 +66,15 @@ jQuery ->
                 </div>
                 """
 
-            html =
-                if @model.get 'editMode' then content_edit_html
-                else if @model.get 'dateEditMode' then date_edit_html
-                else final_html
+            html = ""
+            if @model.get 'editMode'
+                html = content_edit_html
+            else if @model.get 'dateEditMode'
+                html = date_edit_html
+            else
+                html = final_html
+                @model.save()
+
 
             if not @model.get 'initialized'
                 $(@el).hide()
@@ -83,6 +90,7 @@ jQuery ->
                 $(@el).addClass("done")
 
             $(@el).find("input").focus()
+
             @
 
         unrender: ->
@@ -134,6 +142,9 @@ jQuery ->
 
             @collection = new TodoList
             @collection.bind 'add', @renderItem
+            @collection.bind 'reset', @reset
+            @collection.fetch()
+            console.log(Backbone.LocalStorage)
 
         addItem: ->
             item = new Item
@@ -146,6 +157,9 @@ jQuery ->
                 lastitem -= 1
                 if model.get 'done'
                     model.destroy()
+
+        reset: ->
+            @collection.each(this.renderItem)
 
         sortItems: ->
             @collection.sort()

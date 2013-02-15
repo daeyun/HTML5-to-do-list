@@ -17,7 +17,7 @@
         content: 'todo',
         date: moment().format('L'),
         editMode: true,
-        dateEditMode: true,
+        dateEditMode: false,
         done: false,
         initialized: false
       };
@@ -34,6 +34,8 @@
       }
 
       TodoList.prototype.model = Item;
+
+      TodoList.prototype.localStorage = new Backbone.LocalStorage("SomeCollection2");
 
       TodoList.prototype.comparator = function(item) {
         return moment(item.get('date')).unix();
@@ -64,7 +66,15 @@
         date_edit_html = "<div class=\"item_container editing\">\n<div class=\"todo\">\n    <span class=\"content\">" + (this.model.get('content')) + "</span>\n</div>\n<div class=\"control\">\n    <input type=\"text\" class=\"date_input\" value=\"" + (this.model.get('date')) + "\">\n    <a href=\"#\" class=\"remove\">remove</a>\n</div>\n</div>";
         done_html = !this.model.get('done') ? '<a href="#" class="done">done</a>' : "";
         final_html = "<div class=\"item_container\">\n<div class=\"todo\">\n    <span class=\"content\">" + (this.model.get('content')) + "</span>\n</div>\n<div class=\"control\">\n    <span class=\"date\">" + (this.model.get('date')) + "</span>\n    " + done_html + "\n    <a href=\"#\" class=\"remove\">remove</a>\n</div>\n</div>";
-        html = this.model.get('editMode') ? content_edit_html : this.model.get('dateEditMode') ? date_edit_html : final_html;
+        html = "";
+        if (this.model.get('editMode')) {
+          html = content_edit_html;
+        } else if (this.model.get('dateEditMode')) {
+          html = date_edit_html;
+        } else {
+          html = final_html;
+          this.model.save();
+        }
         if (!this.model.get('initialized')) {
           $(this.el).hide();
         }
@@ -168,7 +178,10 @@
       ListView.prototype.initialize = function() {
         _.bindAll(this);
         this.collection = new TodoList;
-        return this.collection.bind('add', this.renderItem);
+        this.collection.bind('add', this.renderItem);
+        this.collection.bind('reset', this.reset);
+        this.collection.fetch();
+        return console.log(Backbone.LocalStorage);
       };
 
       ListView.prototype.addItem = function() {
@@ -191,6 +204,10 @@
           }
         }
         return _results;
+      };
+
+      ListView.prototype.reset = function() {
+        return this.collection.each(this.renderItem);
       };
 
       ListView.prototype.sortItems = function() {
