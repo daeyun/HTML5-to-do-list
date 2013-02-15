@@ -27,3 +27,6 @@ jquery
 
 backbone.js (dependency: underscore.js), and localStorage plugin
 * MIT License
+
+# Additional Notes
+Used Coffeescript and Backbone.js
