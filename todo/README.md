@@ -6,12 +6,11 @@ Sorting, Animations
 
 ## Style
 
-There was official style guideline I could find for Coffeescript + Backbone.js, but I tried to stick to the MVC model as much as possible.
-No inline css or javascript.
+- There was no official style guideline for Coffeescript + Backbone.js, but I tried to stick to the MVC model as much as possible.
 
-## Version Control
+- No inline css or javascript.
 
-Git
+- Used Git
 
 # Extra
 
