@@ -1,4 +1,4 @@
-## Additional Features:
+## Additional Features
 
 Sorting, Animations
 
