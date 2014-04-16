@@ -1,6 +1,4 @@
 jQuery ->
-
-
     class Item extends Backbone.Model
         defaults:
             content: 'todo'
@@ -85,7 +83,6 @@ jQuery ->
             else
                 html = final_html
                 @model.save()
-
 
             if not @model.get 'initialized'
                 $(@el).hide()
